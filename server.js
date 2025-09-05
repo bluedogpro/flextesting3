@@ -66,4 +66,21 @@ app.put('/api/game/rawsave', (req, res) => {
   }
 });
 
+app.delete('/api/game/rawsave', (req, res) => {
+  const user = req.query.user;
+  if (!user) return res.status(400).json({ error: 'Missing user' });
+
+  const filePath = path.join(__dirname, 'saves', `${user}.json`);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Save file not found' });
+  }
+
+  try {
+    fs.unlinkSync(filePath);
+    res.json({ ok: true, message: 'Save file deleted.' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
