@@ -40,4 +40,15 @@ app.get('/api/game/load', (req, res) => {
 
 app.get('/', (req, res) => res.send('Game Save API is running!'));
 
+app.get('/api/game/rawsave', (req, res) => {
+  const user = req.query.user;
+  if (!user) return res.status(400).json({ error: 'Missing user' });
+
+  const filePath = path.join(__dirname, 'saves', `${user}.json`);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Save not found' });
+
+  const data = fs.readFileSync(filePath, 'utf-8');
+  res.type('application/json').send(data);
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
