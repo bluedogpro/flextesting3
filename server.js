@@ -47,4 +47,23 @@ app.get('/api/game/rawsave', (req, res) => {
   res.type('application/json').send(data);
 });
 
+
+app.put('/api/game/rawsave', (req, res) => {
+  const user = req.query.user;
+  if (!user) return res.status(400).json({ error: 'Missing user' });
+  const newData = req.body;
+  if (!newData || typeof newData !== 'object') return res.status(400).json({ error: 'Missing or invalid data' });
+
+  const saveDir = path.join(__dirname, 'saves');
+  if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir);
+
+  const filePath = path.join(saveDir, `${user}.json`);
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(newData, null, 2), 'utf-8');
+    res.json({ ok: true, message: 'Save file updated.' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
